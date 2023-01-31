@@ -1,20 +1,24 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import datetime
+from urllib.parse import urljoin
 from core.models import Keywords, Urls
 
 def scrap(url):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
     
-    # using a set data structure to store all urls on this page and avoid duplication
-    link_urls_on_this_page = set()
+    # using Set data structure to store all urls on this page and avoid duplication
+    urls_found_on_this_page = set()
     for link in soup.find_all('a', href = True):
         found_url = str(link.get('href'))
-        if re.match(url_regex, found_url) is not None:
-            link_urls_on_this_page.add(found_url)
-    print(link_urls_on_this_page)
-
+        if len(found_url) > 1 and found_url[0] == "/":
+            found_url = urljoin(url,found_url)
+            if re.match(url_regex, found_url) is not None:
+                urls_found_on_this_page.add(found_url)
+    
+    print(urls_found_on_this_page)
 
     keywords = soup.find_all('meta', attrs={'name':'keywords'})
 
@@ -33,16 +37,25 @@ def scrap(url):
             keywords.extend(word.split())
 
 
-    # saving current url to db if not already saved, and getting its reference
+    # saving current url to db if not already saved, and getting its reference, later mapping it with keywords and updating its last_scrapped value
     url_row, created_url_obj = Urls.objects.get_or_create(address = url)
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
     for keyword in keywords:
         keyword = keyword.strip()
         if keyword:
             keyword_row, created_keyword_obj = Keywords.objects.get_or_create(keyword = keyword)
-            url_row.keywords_in_it.add(keyword_row)
+            url_row.keywords_in_it.add(keyword_row)     # Adding a second time is OK, it will not duplicate the relation
 
-    # create entries for aa links found in page and increment their num_of_refs
+    # create entries for all links found in page, and increment their num_of_refs if this url is not earlier scrapped
+    # i.e increment iff current url is added to db this time only and link is already present in db (as default is 1)
+    for link in urls_found_on_this_page:
+        link_row, created_link_obj = Urls.objects.get_or_create(address = link)
+        if not created_link_obj and created_url_obj:
+            link_row.num_of_refs += 1
+            link_row.save()
+    
+    url_row.last_scrapped = datetime.datetime.utcnow()
+    url_row.save()
 
 
 # regex for checking if valid url
@@ -56,4 +69,4 @@ url_regex = re.compile(
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 
-scrap('https://codergtm.github.io/')
+scrap('https://github.com/coderGtm?tab=repositories')

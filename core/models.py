@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 # Create your models here.
 
@@ -10,7 +11,9 @@ class Keywords(models.Model):
 
 class Urls(models.Model):
     address = models.CharField(unique=True ,max_length=100)
-    num_of_refs = models.IntegerField(default=0)
+    num_of_refs = models.IntegerField(default=1)
     keywords_in_it = models.ManyToManyField(Keywords)
+    last_scrapped = models.DateTimeField(default=datetime.datetime.min)
+
     def __str__(self):
         return self.link
