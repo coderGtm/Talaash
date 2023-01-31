@@ -7,9 +7,10 @@ class Keywords(models.Model):
     def __str__(self):
         return self.keyword
 
-class Links(models.Model):
-    link_url = models.CharField(max_length=100)
-    link_ref_num = models.IntegerField()
-    link_keywords = models.ManyToManyField(Keywords)
+
+class Urls(models.Model):
+    address = models.CharField(unique=True ,max_length=100)
+    num_of_refs = models.IntegerField(default=0)
+    keywords_in_it = models.ManyToManyField(Keywords)
     def __str__(self):
         return self.link
