@@ -20,17 +20,19 @@ def scrap(url):
     
     print(urls_found_on_this_page)
 
-    keywords = soup.find_all('meta', attrs={'name':'description'})
+    keywords = []
+    if soup.find_all('meta', attrs={'name':'description'}):
+        keywords.append(soup.find('meta', attrs={'name':'description'}).get("content"))
 
     # add headings to keywords
     headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
     for heading in headings:
-        keywords.append(str(heading).strip())
+        keywords.append(str(heading.text).strip())
 
     # add title to keywords
     titles = soup.find_all('title')
     for title in titles:
-        keywords.append(str(title).strip())
+        keywords.append(str(title.text).strip())
 
     return keywords, urls_found_on_this_page
 
@@ -41,16 +43,18 @@ def store(url, keywords, urls_found_on_this_page):
     url_row, created_url_obj = Urls.objects.get_or_create(address = url)
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
     for keyword in keywords:
+        print(keyword)
         keyword = keyword.strip()
         if keyword:
-            keyword_row, created_keyword_obj = Keywords.objects.get_or_create(keyword = keyword)
+            keyword_row, created_keyword_obj = Keywords.objects.get_or_create(keyword_string = keyword)
             url_row.keywords_in_it.add(keyword_row)     # Adding a second time is OK, it will not duplicate the relation
 
     # create entries for all links found in page, and increment their num_of_refs if this url is not earlier scrapped
-    # i.e increment iff current url is added to db this time only and link is already present in db (as default is 1)
+    # i.e increment iff current url is not yet scrapped and link is already present in db (as default is 1)
+    # not yet scrapped can be determined by last_scrapped being datetime.datetime.min
     for link in urls_found_on_this_page:
         link_row, created_link_obj = Urls.objects.get_or_create(address = link)
-        if not created_link_obj and created_url_obj:
+        if not created_link_obj and url_row.last_scrapped == datetime.datetime.min:
             link_row.num_of_refs += 1
             link_row.save()
     
@@ -70,7 +74,8 @@ def get_url_regex():
             r'(?::\d+)?' # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
-if __name__ == "__main__":
+
+if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     url = "https://github.com/coderGtm?tab=repositories"
     keywords, urls_found_on_this_page = scrap(url)
