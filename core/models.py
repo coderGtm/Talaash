@@ -4,7 +4,7 @@ import datetime
 # Create your models here.
 
 class Keywords(models.Model):
-    keyword = models.CharField(max_length=100)
+    keyword_string = models.CharField(max_length=100)
     def __str__(self):
         return self.keyword
 
