@@ -20,23 +20,23 @@ def scrap(url):
     
     print(urls_found_on_this_page)
 
-    keywords = soup.find_all('meta', attrs={'name':'keywords'})
+    keywords = soup.find_all('meta', attrs={'name':'description'})
 
     # add headings to keywords
     headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
     for heading in headings:
-        words = heading.text.split()
-        for word in words:
-            keywords.extend(word.split())
+        keywords.append(str(heading).strip())
 
     # add title to keywords
-    title = soup.find_all('title')
-    for t in title:
-        words = t.text.split()
-        for word in words:
-            keywords.extend(word.split())
+    titles = soup.find_all('title')
+    for title in titles:
+        keywords.append(str(title).strip())
+
+    return keywords, urls_found_on_this_page
 
 
+
+def store(url, keywords, urls_found_on_this_page):
     # saving current url to db if not already saved, and getting its reference, later mapping it with keywords and updating its last_scrapped value
     url_row, created_url_obj = Urls.objects.get_or_create(address = url)
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
@@ -58,15 +58,20 @@ def scrap(url):
     url_row.save()
 
 
-# regex for checking if valid url
-#source: https://stackoverflow.com/a/7160778/12312757
-url_regex = re.compile(
-        r'^(?:http|ftp)s?://' # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
-        r'localhost|' #localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
-        r'(?::\d+)?' # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
+def get_url_regex():
+    # regex for checking if valid url
+    #source: https://stackoverflow.com/a/7160778/12312757
+    return re.compile(
+            r'^(?:http|ftp)s?://' # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+            r'localhost|' #localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+            r'(?::\d+)?' # optional port
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
-scrap('https://github.com/coderGtm?tab=repositories')
+if __name__ == "__main__":
+    url_regex = get_url_regex()
+    url = "https://github.com/coderGtm?tab=repositories"
+    keywords, urls_found_on_this_page = scrap(url)
+    store(url, keywords, urls_found_on_this_page)
