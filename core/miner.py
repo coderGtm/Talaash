@@ -55,10 +55,6 @@ def store(url, keywords, urls_found_on_this_page):
     # not yet scrapped can be determined by last_scrapped being datetime.datetime.min
     for link in urls_found_on_this_page:
         link_row, created_link_obj = Urls.objects.get_or_create(address = link)
-        print("DEBUG\n\n")
-        print(url_row.last_scrapped)
-        print(datetime.datetime.min)
-        print( url_row.last_scrapped == datetime.datetime.min)
         if not created_link_obj and url_row.last_scrapped == datetime.datetime.min:
             link_row.num_of_refs += 1
             link_row.save()
