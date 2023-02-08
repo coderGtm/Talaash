@@ -5,8 +5,6 @@ import datetime
 
 class Keywords(models.Model):
     keyword_string = models.CharField(max_length=100)
-    def __str__(self):
-        return self.keyword
 
 
 class Urls(models.Model):
@@ -14,6 +12,3 @@ class Urls(models.Model):
     num_of_refs = models.IntegerField(default=1)
     keywords_in_it = models.ManyToManyField(Keywords)
     last_scrapped = models.DateTimeField(default=datetime.datetime.min)
-
-    def __str__(self):
-        return self.link

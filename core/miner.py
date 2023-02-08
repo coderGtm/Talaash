@@ -40,9 +40,10 @@ def scrap(url):
 
 
 def store(url, keywords, urls_found_on_this_page):
-    print(urls_found_on_this_page)
     # saving current url to db if not already saved, and getting its reference, later mapping it with keywords and updating its last_scrapped value
     url_row, created_url_obj = Urls.objects.get_or_create(address = url)
+    #delete keywords feild entry as some keywords may no longer be in page so start afresh
+    url_row.keywords_in_it.clear()
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
     for keyword in keywords:
         keyword = keyword.strip()
@@ -78,6 +79,19 @@ def get_url_regex():
 
 if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
-    url = "https://coderGtm.github.io/projects"
-    keywords, urls_found_on_this_page = scrap(url)
-    store(url, keywords, urls_found_on_this_page)
+    maxUrlsToScrapInSession = 10
+    urlsScrappedInSession = 0
+    scrapIntervalInDays = 3
+
+    while urlsScrappedInSession < maxUrlsToScrapInSession:
+        to_scrap_urls = Urls.objects.filter(last_scrapped__lt = (datetime.datetime.utcnow() - datetime.timedelta(days = scrapIntervalInDays)))
+        for url_object in to_scrap_urls:
+            if urlsScrappedInSession >= maxUrlsToScrapInSession:
+                break
+            url_to_scrap = url_object.address
+            keywords_found_on_this_page, urls_found_on_this_page = scrap(url_to_scrap)
+            store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page)
+            urlsScrappedInSession += 1
+
+    print("Total URLs present in Database: ",Urls.objects.count())
+    print("Total URLs scrapped: ",Urls.objects.exclude(last_scrapped = datetime.datetime.min).count())
