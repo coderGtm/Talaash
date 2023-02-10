@@ -4,9 +4,13 @@ import re
 import datetime
 from urllib.parse import urljoin
 from core.models import Keywords, Urls
+from random import shuffle
 
 def scrap(url):
-    page = requests.get(url)
+    try:
+        page = requests.get(url)
+    except:
+        return (None, None)
     soup = BeautifulSoup(page.text, 'html.parser')
     
     # using Set data structure to store all urls on this page and avoid duplication
@@ -56,7 +60,7 @@ def store(url, keywords, urls_found_on_this_page):
     # not yet scrapped can be determined by last_scrapped being datetime.datetime.min
     for link in urls_found_on_this_page:
         link_row, created_link_obj = Urls.objects.get_or_create(address = link)
-        if not created_link_obj and url_row.last_scrapped == datetime.datetime.min:
+        if (not created_link_obj) and url_row.last_scrapped == datetime.datetime.min:
             link_row.num_of_refs += 1
             link_row.save()
     
@@ -79,19 +83,35 @@ def get_url_regex():
 
 if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
-    maxUrlsToScrapInSession = 10
+    maxUrlsToScrapInSession = 5
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
+    manualAddition = False
+
+    print("[ + ] Crawling initialized!")
+
+    if manualAddition:
+        url_to_scrap = "https://www.charusat.ac.in/"
+        keywords_found_on_this_page, urls_found_on_this_page = scrap(url_to_scrap)
+        store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page)
 
     while urlsScrappedInSession < maxUrlsToScrapInSession:
-        to_scrap_urls = Urls.objects.filter(last_scrapped__lt = (datetime.datetime.utcnow() - datetime.timedelta(days = scrapIntervalInDays)))
+        to_scrap_urls = list(Urls.objects.filter(last_scrapped__lt = (datetime.datetime.utcnow() - datetime.timedelta(days = scrapIntervalInDays))))
+        if len(to_scrap_urls) == 0:
+            print("[ - ] No URLs to scrap currenty. Try changing scrap conditions or manually add new URLs.")
+            break
+        shuffle(to_scrap_urls)      # shuffling to ge more diversified results
         for url_object in to_scrap_urls:
             if urlsScrappedInSession >= maxUrlsToScrapInSession:
                 break
             url_to_scrap = url_object.address
             keywords_found_on_this_page, urls_found_on_this_page = scrap(url_to_scrap)
+            if (keywords_found_on_this_page, urls_found_on_this_page) == (None, None):
+                continue
             store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page)
             urlsScrappedInSession += 1
+            print("[ + ] Crawled {0}".format(url_to_scrap))
 
-    print("Total URLs present in Database: ",Urls.objects.count())
-    print("Total URLs scrapped: ",Urls.objects.exclude(last_scrapped = datetime.datetime.min).count())
+    print("\n-------------------------------------------")
+    print("[ + ] Total URLs present in Database: ",Urls.objects.count())
+    print("[ + ] Total scrapped URLs: ",Urls.objects.exclude(last_scrapped = datetime.datetime.min).count())
