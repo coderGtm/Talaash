@@ -89,6 +89,7 @@ if __name__ == "django.core.management.commands.shell":
     manualAddition = False
 
     print("[ + ] Crawling initialized!")
+    print("-------------------------------------------\n")
 
     if manualAddition:
         url_to_scrap = "https://www.charusat.ac.in/"
