@@ -83,7 +83,7 @@ def get_url_regex():
 
 if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
-    maxUrlsToScrapInSession = 5
+    maxUrlsToScrapInSession = 10
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
     manualAddition = False
@@ -92,9 +92,10 @@ if __name__ == "django.core.management.commands.shell":
     print("-------------------------------------------\n")
 
     if manualAddition:
-        url_to_scrap = "https://www.charusat.ac.in/"
+        url_to_scrap = "https://en.wikipedia.org/wiki/India"
         keywords_found_on_this_page, urls_found_on_this_page = scrap(url_to_scrap)
         store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page)
+        print("[ + ] Crawled {0}".format(url_to_scrap))
 
     while urlsScrappedInSession < maxUrlsToScrapInSession:
         to_scrap_urls = list(Urls.objects.filter(last_scrapped__lt = (datetime.datetime.utcnow() - datetime.timedelta(days = scrapIntervalInDays))))
@@ -108,11 +109,13 @@ if __name__ == "django.core.management.commands.shell":
             url_to_scrap = url_object.address
             keywords_found_on_this_page, urls_found_on_this_page = scrap(url_to_scrap)
             if (keywords_found_on_this_page, urls_found_on_this_page) == (None, None):
+                print("[ - ] Skipping URL: {0}".format(url_to_scrap))
                 continue
             store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page)
             urlsScrappedInSession += 1
             print("[ + ] Crawled {0}".format(url_to_scrap))
 
     print("\n-------------------------------------------")
+    print("[ + ] Total Keywords string in Database: ", Keywords.objects.count())
     print("[ + ] Total URLs present in Database: ",Urls.objects.count())
-    print("[ + ] Total scrapped URLs: ",Urls.objects.exclude(last_scrapped = datetime.datetime.min).count())
+    print("[ + ] Total URLs crawled: ",Urls.objects.exclude(last_scrapped = datetime.datetime.min).count())
