@@ -20,4 +20,4 @@ def getResults(query):
 def getNumOfRefs(elem):
     return elem[1]
 
-getResults("mahabharat")
+getResults("Modi")
