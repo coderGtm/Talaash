@@ -88,13 +88,15 @@ if __name__ == "django.core.management.commands.shell":
     scrapIntervalInDays = 3
     manualAddition = False
 
-    print("[ + ] Crawling initialized!")
+    print("[ + ] Initializing crawler!")
+    print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
     print("-------------------------------------------\n")
 
     if manualAddition:
         url_to_scrap = "https://en.wikipedia.org/wiki/India"
         keywords_found_on_this_page, urls_found_on_this_page = scrap(url_to_scrap)
         store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page)
+        urlsScrappedInSession += 1
         print("[ + ] Crawled {0}".format(url_to_scrap))
 
     while urlsScrappedInSession < maxUrlsToScrapInSession:
