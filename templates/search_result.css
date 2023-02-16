@@ -1,0 +1,60 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+.searchbar{
+    display: flex;
+    flex-direction: row;
+    margin: 30px 30px 20px 100px;
+}
+.searchbar .Logo{
+    width: 115px;
+    height: 30px;
+}
+.searchbar .search{
+    display: flex;
+    border: 2px solid rgb(59, 56, 56);
+    flex-direction: row;
+    width: 550px;
+    height: 30px;
+    margin-left: 30px;
+    border-radius: 15px;
+
+}
+.searchbar .search .icon_search{
+    margin-left: 6px;
+    margin-right: 6px;
+}
+.searchbar .search .s_input{
+    width: 500px;
+    border: white;
+    transition: box-shadow 100ms;
+    outline: none;
+    font-size: 16px;
+    /* padding-left: 5px; */
+    /* color: white; */
+}
+
+.searchResult{
+    margin-left: 100px;
+    margin-right: 50px;
+    display: flex;
+    flex-direction: row;
+    border: 2px solid red;
+}
+
+.searchResult .mainCon{
+    width: 875px;
+    border: 2px solid red;
+
+}
+.searchResult .mainCon a:hover{
+    
+}
+.searchResult .linkCon{
+    border: 2px solid red;
+
+}
+
+
