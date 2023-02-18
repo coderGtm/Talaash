@@ -67,8 +67,8 @@ def store(url, keywords, urls_found_on_this_page, title, description, iconLink):
     #delete keywords feild entry as some keywords may no longer be in page so start afresh
     url_row.keywords_in_it.clear()
     # update or create title, description and iconLink
-    url_row.page_title = title
-    url_row.page_description = description
+    url_row.page_title = title[:pageTitleCharLimit]
+    url_row.page_description = description[:pageDescriptionCharLimit]
     url_row.icon_link = iconLink
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
     for keyword in keywords:
@@ -119,17 +119,19 @@ def get_url_regex():
 
 if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
-    maxUrlsToScrapInSession = 1
+    pageTitleCharLimit = 60
+    pageDescriptionCharLimit = 140
+    maxUrlsToScrapInSession = 50
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
-    manualAddition = False
+    manualAddition = not False
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
     print("-------------------------------------------\n")
 
     if manualAddition:
-        url_to_scrap = "https://charusat.ac.in"
+        url_to_scrap = "https://www.pmindia.gov.in/en/"
         keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page = scrap(url_to_scrap)
         store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink)
         urlsScrappedInSession += 1
