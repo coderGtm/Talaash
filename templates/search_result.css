@@ -1,0 +1,120 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+.searchbar{
+    display: flex;
+    flex-direction: row;
+    margin: 30px 30px 20px 100px;
+}
+.searchbar .Logo{
+    width: 115px;
+    height: 30px;
+}
+.searchbar .search{
+    display: flex;
+    border: 2px solid rgb(59, 56, 56);
+    flex-direction: row;
+    width: 550px;
+    height: 30px;
+    margin-left: 30px;
+    border-radius: 15px;
+
+}
+.searchbar .search .icon_search{
+    margin-left: 6px;
+    margin-right: 6px;
+}
+.searchbar .search .s_input{
+    width: 500px;
+    border: white;
+    transition: box-shadow 100ms;
+    outline: none;
+    font-size: 16px;
+    /* padding-left: 5px; */
+    /* color: white; */
+}
+
+.searchResult{
+    margin-left: 100px;
+    margin-right: 50px;
+    display: flex;
+    flex-direction: row;
+    border: 2px solid red;
+}
+
+.searchResult .mainCon{
+    width: 875px;
+    border: 2px solid red;
+
+}
+.up_con{
+    display: flex;
+    flex-direction: row;
+}
+.up_con p{
+    margin-right: 20px;
+}
+.up_con .icon_image{
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    /* margin-top: 3px; */
+}
+.searchResult .mainCon a:hover{
+    
+}
+.searchResult .linkCon{
+    border: 2px solid red;
+}
+
+.result{
+    margin-bottom: 20px;
+}
+.site_head{
+    margin-left: 2px;
+    font-size: 28px
+}
+
+.result p{
+    margin-left: 2px;
+}
+
+.switch_page{
+    margin-top: 50px;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.switch_page_logo
+{
+    width:250px;
+    height: 40px;
+    margin-bottom: 11px;
+}
+
+.switch_page .page_no p{
+    font-family: Arial,sans-serif;
+    font-weight: 600;
+}
+
+.switch_page .page_no{
+    display: flex;
+    flex-direction: row;
+    /* text-align: center; */
+    justify-content: center;
+    /* margin-left: 340px; */
+}
+
+.switch_page .page_no button{
+    margin-left: 6px;
+    padding: 2px 4px 2px 4px;
+    background-color: black;
+}
+
+.switch_page .page_no button a{
+    text-decoration: none;
+    color: gold;
+    
+}
