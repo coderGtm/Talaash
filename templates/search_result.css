@@ -49,12 +49,72 @@
     border: 2px solid red;
 
 }
+.up_con{
+    display: flex;
+    flex-direction: row;
+}
+.up_con p{
+    margin-right: 20px;
+}
+.up_con .icon_image{
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    /* margin-top: 3px; */
+}
 .searchResult .mainCon a:hover{
     
 }
 .searchResult .linkCon{
     border: 2px solid red;
-
 }
 
+.result{
+    margin-bottom: 20px;
+}
+.site_head{
+    margin-left: 2px;
+    font-size: 28px
+}
 
+.result p{
+    margin-left: 2px;
+}
+
+.switch_page{
+    margin-top: 50px;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.switch_page_logo
+{
+    width:250px;
+    height: 40px;
+    margin-bottom: 11px;
+}
+
+.switch_page .page_no p{
+    font-family: Arial,sans-serif;
+    font-weight: 600;
+}
+
+.switch_page .page_no{
+    display: flex;
+    flex-direction: row;
+    /* text-align: center; */
+    justify-content: center;
+    /* margin-left: 340px; */
+}
+
+.switch_page .page_no button{
+    margin-left: 6px;
+    padding: 2px 4px 2px 4px;
+    background-color: black;
+}
+
+.switch_page .page_no button a{
+    text-decoration: none;
+    color: gold;
+    
+}
