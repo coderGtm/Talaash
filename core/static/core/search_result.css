@@ -68,13 +68,24 @@
 .searchResult .linkCon{
     border: 2px solid red;
 }
-
+#urlToShow {
+    text-decoration: none;
+    color: black;
+    max-width: 500px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .result{
     margin-bottom: 20px;
 }
 .site_head{
     margin-left: 2px;
-    font-size: 28px
+    font-size: 28px;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .result p{

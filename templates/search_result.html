@@ -6,19 +6,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talash</title>
+    <title>{{ query }} - Talash Search</title>
     <link rel="icon"  href="{% static 'core/favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'core/search_result.css' %}">
 </head>
 <body>
     <div class="searchbar">
-        <img src="{% static 'core/Talaash_1.png' %}" alt="TalaashLogo" class="Logo">
+        <a href="/"><img src="{% static 'core/Talaash_1.png' %}" alt="TalaashLogo" class="Logo"></a>
         
-        <div class="search">
-            <img src="{% static 'core/search.svg' %}" alt="searchicon" class="icon_search">
-            {{ form }}
-        </div>
-
+        <form action = "" method = "post">
+			{% csrf_token %}
+            <div class="search">
+                <img src="{% static 'core/search.svg' %}" alt="searchicon" class="icon_search">
+                {{ form }}
+            </div>
+            
+        </form>
 
     </div>
 
@@ -31,7 +34,7 @@
                 <a href="{{ result.url }}">
                     <div class="up_con">
                         <img src="{{ result.icon_url }}" alt="Logo" class="icon_image">
-                        <p>{{ result.url }}</p> 
+                        <p id="urlToShow">{{ result.url }}</p> 
                     </div>
                     <h2 class = "site_head">{{ result.title }}</h2>
                 </a>

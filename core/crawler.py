@@ -95,6 +95,8 @@ def getFavicon(url, soup):
         icon_link = soup.find("link", rel="icon")
     if icon_link is None:
         return getBaseUrl(url) + '/favicon.ico'
+    if not icon_link["href"].startswith("http"):
+        return getBaseUrl(url) + icon_link["href"]
     return icon_link["href"]
 
 def getBaseUrl(url):

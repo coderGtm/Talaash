@@ -16,18 +16,15 @@ def getResults(query):
             
     matchingUrls.sort(key=getNumOfRefs, reverse=True)
 
-    print("------Talaash Results for {0}-------".format(query))
+    #remove duplicates based on url
+    res = []
+    [res.append(x) for x in matchingUrls if x[0] not in [y[0] for y in res]]
+    matchingUrls = res
     
     for mu in matchingUrls:
         url = mu[0]
         if url not in results:
             results.append({'url': url, 'title': mu[2], 'description': mu[3], 'icon_url': mu[4]})
-            '''print(url)
-            print(mu[1])
-            print(mu[2])
-            print(mu[3])
-            print(mu[4])
-            print("-------------------------------------------")'''
 
     return results
 
@@ -35,4 +32,3 @@ def getResults(query):
 def getNumOfRefs(elem):
     return elem[1]
 
-#getResults("India")
