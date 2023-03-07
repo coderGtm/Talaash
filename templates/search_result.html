@@ -25,6 +25,7 @@
 
     </div>
 
+    <p id="numOfResults">About {{ results|length }} results fetched</p><br>
 
     <div class="searchResult">
         <div class="mainCon">
@@ -34,7 +35,7 @@
                 <a href="{{ result.url }}">
                     <div class="up_con">
                         <img src="{{ result.icon_url }}" alt="Logo" class="icon_image">
-                        <p id="urlToShow">{{ result.url }}</p> 
+                        <cite class="urlToShow">{{ result.url }}</cite> 
                     </div>
                     <h2 class = "site_head">{{ result.title }}</h2>
                 </a>
