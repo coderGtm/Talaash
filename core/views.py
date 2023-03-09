@@ -30,5 +30,5 @@ def search(request):
     context['form'] = form
     context['query'] = query
     context['results'] = engine.getResults(query)
-    print(context['results'])
+
     return render(request, 'search_result.html', context)
