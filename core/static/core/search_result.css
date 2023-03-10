@@ -128,3 +128,28 @@ a:visited {
     height: 40px;
     margin-bottom: 11px;
 }
+.switch_page .page_no p{
+    font-family: Arial,sans-serif;
+    font-weight: 600;
+}
+
+.switch_page .page_no{
+    display: flex;
+    flex-direction: row;
+    /* text-align: center; */
+    justify-content: center;
+    /* margin-left: 340px; */
+}
+
+.switch_page .page_no button{
+    outline: none;
+    margin-left: 6px;
+    padding: 2px 4px 2px 4px;
+    background-color: black;
+}
+
+.switch_page .page_no button a{
+    text-decoration: none;
+    color: gold;
+    
+}

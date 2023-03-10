@@ -24,22 +24,21 @@ def getResults(query):
         if url not in results:
             results.append({'url': url, 'title': mu.page_title, 'description': mu.page_description, 'icon_url': mu.icon_link})
 
-    #return top 30 results
-    return results[:30]
+    return results
 
 
 
 def getResultsWithMatch(param, query):
     res = []
     if param == "title":
-        res = Urls.objects.filter(page_title__contains = query)
+        res = Urls.objects.filter(page_title__icontains = query)
     elif param == "keyword":
-        res = Urls.objects.filter(keywords_in_it__keyword_string__contains = query)
+        res = Urls.objects.filter(keywords_in_it__keyword_string__icontains = query)
     elif param == "description":
-        res = Urls.objects.filter(page_description__contains = query)
+        res = Urls.objects.filter(page_description__icontains = query)
     elif param == "url":
         # get only those urls which are scrapped
-        res = Urls.objects.filter(address__contains = query).exclude(last_scrapped = datetime.datetime.min)
+        res = Urls.objects.filter(address__icontains = query).exclude(last_scrapped = datetime.datetime.min)
     return res
         
 def returnRankedResults(res_title, res_keyword, res_description, res_url):

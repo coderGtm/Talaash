@@ -27,8 +27,13 @@ def search(request):
         form = SearchForm(initial={'query': request.GET.get('q','')})
     context = {}
     query = request.GET.get('q','')
+    start = request.GET.get('start', 0)
     context['form'] = form
     context['query'] = query
-    context['results'] = engine.getResults(query)
+    results = engine.getResults(query)
+    context['results'] = results[int(start):int(start)+maxResultsOnPage]
+    context['totalResults'] = len(results)
 
     return render(request, 'search_result.html', context)
+
+maxResultsOnPage = 10

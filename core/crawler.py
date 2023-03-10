@@ -123,10 +123,10 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 50
+    maxUrlsToScrapInSession = 20
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
-    manualAddition = not False
+    manualAddition = False
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))

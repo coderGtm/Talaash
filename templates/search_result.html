@@ -9,6 +9,7 @@
     <title>{{ query }} - Talash Search</title>
     <link rel="icon"  href="{% static 'core/favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'core/search_result.css' %}">
+    <script src="{% static 'core/search_result.js' %}"></script>
 </head>
 <body>
     <div class="searchbar">
@@ -25,16 +26,22 @@
 
     </div>
 
-    <p id="numOfResults">Talaash found {{ results|length }} results for your query</p><br>
+    <p id="numOfResults">Talaash found {{ totalResults }} results for your query</p><br>
 
     <div class="searchResult">
         <div class="mainCon">
+
+            {% if results|length == 0 %}
+                <div class="result">
+                    <h2>No results found</h2>
+                </div>
+            {% endif %}
 
             {% for result in results %}
             <div class="result">
                 <a href="{{ result.url }}">
                     <div class="up_con">
-                        <img src="{{ result.icon_url }}" alt="Logo" class="icon_image">
+                        <img src="{{ result.icon_url }}" alt="Logo" class="icon_image" onerror="setDafualtFavicon(this)">
                         <cite class="urlToShow">{{ result.url }}</cite> 
                     </div>
                     <h2 class = "site_head">{{ result.title }}</h2>
@@ -43,9 +50,19 @@
             </div>
             {% endfor %}
 
+
             <div class="switch_page">
-                <img src="{% static 'core/Talaash_1.png' %}" alt="TalaashLogo" class="switch_page_logo">
+                <a href="/"><img src="{% static 'core/Talaash_1.png' %}" alt="TalaashLogo" class="switch_page_logo"></a>
+                <div class="page_no">
+                    <p>Pages:</p>
+                    <button><a href="/search?q={{ query }}&start=0">1</a></button>
+                    <button><a href="/search?q={{ query }}&start=10">2</a></button>
+                    <button><a href="/search?q={{ query }}&start=20">3</a></button>
+                    <button><a href="/search?q={{ query }}&start=30">4</a></button>
+                    <button><a href="/search?q={{ query }}&start=40">5</a></button>
+                </div>
             </div>
+
         </div>
 
         <div class="linkCon">
