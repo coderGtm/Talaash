@@ -8,7 +8,7 @@ from random import shuffle
 
 def scrap(url):
     try:
-        page = requests.get(url)
+        page = requests.get(url, timeout = 10)
     except:
         return (None, None, None, None, None)
     soup = BeautifulSoup(page.text, 'html.parser')
@@ -123,7 +123,7 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 20
+    maxUrlsToScrapInSession = 50
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
     manualAddition = False
