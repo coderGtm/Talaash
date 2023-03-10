@@ -17,10 +17,11 @@ def cleanDatabaseOfUnscrappedURLs(percent):
     shuffle(urls)
     # delete given % of urls
     urls_to_delete = urls[:int(len(urls)*(percent/100))]
-    print("[+] Deleting {0} unscrapped URLs from database...".format(len(urls_to_delete)))
-    for url in urls_to_delete:
-        print("[-] Deleting URL object: ", url.address)
-        url.delete()
+    len_urls_to_delete = len(urls_to_delete)
+    print("[+] Deleting {0} unscrapped URLs from database...".format(len_urls_to_delete))
+    for i in range(len_urls_to_delete):
+        print("[-] Deleting ({0}/{1}) URL object: {2}".format(i+1,len_urls_to_delete,urls_to_delete[i].address))
+        urls_to_delete[i].delete()
 
     # get all unscrapped urls
     urls = Urls.objects.filter(last_scrapped = datetime.datetime.min)
@@ -31,4 +32,4 @@ def cleanDatabaseOfUnscrappedURLs(percent):
 
 
 if __name__ == "django.core.management.commands.shell":
-    cleanDatabaseOfUnscrappedURLs(70)
+    cleanDatabaseOfUnscrappedURLs(.2)
