@@ -137,7 +137,7 @@ if __name__ == "django.core.management.commands.shell":
         keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page = scrap(url_to_scrap)
         store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink)
         urlsScrappedInSession += 1
-        print("[ + ] Crawled {0}".format(url_to_scrap))
+        print("[ + ] Crawled ({0}/{1}) URL: {2}".format(urlsScrappedInSession,maxUrlsToScrapInSession,url_to_scrap))
 
     while urlsScrappedInSession < maxUrlsToScrapInSession:
         to_scrap_urls = list(Urls.objects.filter(last_scrapped__lt = (datetime.datetime.utcnow() - datetime.timedelta(days = scrapIntervalInDays))))
@@ -145,7 +145,8 @@ if __name__ == "django.core.management.commands.shell":
             print("[ - ] No URLs to scrap currenty. Try changing scrap conditions or manually add new URLs.")
             break
         shuffle(to_scrap_urls)      # shuffling to ge more diversified results
-        for url_object in to_scrap_urls:
+        for i in range(len(to_scrap_urls)):
+            url_object = to_scrap_urls[i]
             if urlsScrappedInSession >= maxUrlsToScrapInSession:
                 break
             url_to_scrap = url_object.address
@@ -155,7 +156,7 @@ if __name__ == "django.core.management.commands.shell":
                 continue
             store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink)
             urlsScrappedInSession += 1
-            print("[ + ] Crawled {0}".format(url_to_scrap))
+            print("[ + ] Crawled ({0}/{1}) URL: {2}".format(urlsScrappedInSession,maxUrlsToScrapInSession,url_to_scrap))
 
     print("\n-------------------------------------------")
     print("[ + ] Total Keywords string in Database: ", Keywords.objects.count())
