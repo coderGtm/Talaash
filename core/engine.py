@@ -53,10 +53,10 @@ def returnRankedResults(res_title, res_keyword, res_description, res_url):
     for item in res_title:
         results.append([item, 4])
     for item in res_keyword:
-        results.append([item, 3])
+        results.append([item, 2])
     for item in res_description:
         results.append([item, 2])
     for item in res_url:
-        results.append([item, 1])
-    results.sort(key=lambda x: 2*x[1]+x[0].num_of_refs, reverse=True)
+        results.append([item, 30])
+    results.sort(key=lambda x: x[1]+x[0].num_of_refs*2, reverse=True)
     return results
