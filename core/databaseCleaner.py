@@ -32,4 +32,4 @@ def cleanDatabaseOfUnscrappedURLs(percent):
 
 
 if __name__ == "django.core.management.commands.shell":
-    cleanDatabaseOfUnscrappedURLs(.2)
+    cleanDatabaseOfUnscrappedURLs(90)
