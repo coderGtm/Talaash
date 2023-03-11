@@ -39,6 +39,13 @@ def getResultsWithMatch(param, query):
     elif param == "url":
         # get only those urls which are scrapped
         res = Urls.objects.filter(address__icontains = query).exclude(last_scrapped = datetime.datetime.min)
+
+    # try to find results with individual words in query
+    words = query.split()
+    if len(words) > 1:
+        for word in words:
+            res = res | getResultsWithMatch(param, word)
+                
     return res
         
 def returnRankedResults(res_title, res_keyword, res_description, res_url):
@@ -51,5 +58,5 @@ def returnRankedResults(res_title, res_keyword, res_description, res_url):
         results.append([item, 2])
     for item in res_url:
         results.append([item, 1])
-    results.sort(key=lambda x: x[1]+x[0].num_of_refs, reverse=True)
+    results.sort(key=lambda x: 2*x[1]+x[0].num_of_refs, reverse=True)
     return results
