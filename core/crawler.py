@@ -123,7 +123,7 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 50
+    maxUrlsToScrapInSession = 1000
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
     manualAddition = False
