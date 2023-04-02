@@ -1,5 +1,6 @@
-from core.models import Keywords, Urls
+from core.models import Urls, Favicons
 import datetime
+
 
 def getResults(query):
     results = []
@@ -22,7 +23,8 @@ def getResults(query):
     for mu in matchingUrls:
         url = mu.address
         if url not in results:
-            results.append({'url': url, 'title': mu.page_title, 'description': mu.page_description, 'icon_url': mu.icon_link})
+            icon_url = Favicons.objects.get(id=int(mu.icon_link)).icon_link
+            results.append({'url': url, 'title': mu.page_title, 'description': mu.page_description, 'icon_url': icon_url})
 
     return results
 
@@ -31,11 +33,11 @@ def getResults(query):
 def getResultsWithMatch(param, query):
     res = []
     if param == "title":
-        res = Urls.objects.filter(page_title__iregex = r"\b("+query+")\b")
+        res = Urls.objects.filter(page_title__iregex = query)
     elif param == "keyword":
-        res = Urls.objects.filter(keywords_in_it__keyword_string__iregex = r"\b("+query+")\b")
+        res = Urls.objects.filter(keywords_in_it__keyword_string__iregex = query)
     elif param == "description":
-        res = Urls.objects.filter(page_description__iregex = r"\b("+query+")\b")
+        res = Urls.objects.filter(page_description__iregex = query)
     elif param == "url":
         # get only those urls which are scrapped
         res = Urls.objects.filter(address__icontains = query).exclude(last_scrapped = datetime.datetime.min)
@@ -44,8 +46,10 @@ def getResultsWithMatch(param, query):
     words = query.split()
     if len(words) > 1:
         for word in words:
+            print('searching word '+word)
             res = res | getResultsWithMatch(param, word)
                 
+    #print(len(res))
     return res
         
 def returnRankedResults(res_title, res_keyword, res_description, res_url):
