@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import datetime
 from urllib.parse import urljoin
-from core.models import Keywords, Urls
+from core.models import Keywords, Urls, Favicons
 from random import shuffle
 
 def scrap(url):
@@ -69,7 +69,8 @@ def store(url, keywords, urls_found_on_this_page, title, description, iconLink):
     # update or create title, description and iconLink
     url_row.page_title = title[:pageTitleCharLimit]
     url_row.page_description = description[:pageDescriptionCharLimit]
-    url_row.icon_link = iconLink
+    favicon_row = Favicons.objects.get_or_create(icon_link = iconLink)
+    url_row.icon_link = str(favicon_row[0].id)
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
     for keyword in keywords:
         keyword = keyword.strip()
@@ -96,7 +97,7 @@ def getFavicon(url, soup):
     if icon_link is None:
         return getBaseUrl(url) + '/favicon.ico'
     if not icon_link["href"].startswith("http"):
-        return getBaseUrl(url) + icon_link["href"]
+        return urljoin(getBaseUrl(url),icon_link["href"])
     return icon_link["href"]
 
 def getBaseUrl(url):
@@ -126,14 +127,14 @@ if __name__ == "django.core.management.commands.shell":
     maxUrlsToScrapInSession = 1000
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
-    manualAddition = False
+    manualAddition = True
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
     print("-------------------------------------------\n")
 
     if manualAddition:
-        url_to_scrap = "https://www.pmindia.gov.in/en/"
+        url_to_scrap = "https://www.cricbuzz.com/"
         keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page = scrap(url_to_scrap)
         store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink)
         urlsScrappedInSession += 1
