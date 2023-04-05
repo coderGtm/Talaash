@@ -117,6 +117,12 @@ nav button {
 .s-btn:hover {
 	border: 1px solid #aaa;
 }
+.credits {
+	margin-top: 30px;
+	text-align: center;
+	font-size: 18px;
+	color: #111;
+}
 .lang {
 	margin-top: 30px;
 	text-align: center;
@@ -140,6 +146,7 @@ footer h4 {
 	font-weight: 400;
 	padding-left: 29px;
 	border: 1px solid #eee;
+	text-align: center;
 }
 footer a {
 	color: #5f6368;
@@ -175,6 +182,9 @@ footer a:hover {
 	}
 	.s-btn {
 		margin-top: 20px;
+	}
+	footer h4 {
+		line-height: 25px;
 	}
 }
 

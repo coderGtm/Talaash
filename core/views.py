@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import SearchForm
 from . import engine
-import joblib
+from core.models import Urls
+import datetime
 
 # Create your views here.
 
@@ -14,7 +15,11 @@ def home(request):
             return redirect('/search?q={0}'.format(query))
     else:
         form = SearchForm()
+        totalScrappedUrls = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min).count()
+        lastScrappedDate = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min).order_by('-last_scrapped')[0].last_scrapped
     context['form'] = form
+    context['totalScrappedUrls'] = totalScrappedUrls
+    context['lastScrappedDate'] = lastScrappedDate
 
     return render(request, 'home.html', context)
 
