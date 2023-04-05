@@ -9,6 +9,9 @@ class Keywords(models.Model):
 class Favicons(models.Model):
     icon_link = models.CharField(max_length=100)
 
+class UrlCategory(models.Model):
+    category_name = models.CharField(max_length=100)
+
 class Urls(models.Model):
     address = models.CharField(unique=True ,max_length=100)
     page_title = models.CharField(max_length=60, default="")
@@ -16,4 +19,5 @@ class Urls(models.Model):
     icon_link = models.CharField(max_length=100, default="")
     num_of_refs = models.IntegerField(default=1)
     keywords_in_it = models.ManyToManyField(Keywords)
+    category = models.IntegerField(default=0)
     last_scrapped = models.DateTimeField(default=datetime.datetime.min)

@@ -33,8 +33,6 @@ def search(request):
     context['query'] = query
     results = engine.getResults(query)
     context['results'] = results[int(start):int(start)+maxResultsOnPage]
-    for item in context['results']:
-        item['category'] = joblib.load('core/static/core/website_category_detection_model.joblib').predict([item['title'],item['description']])[0]
     context['totalResults'] = len(results)
 
     return render(request, 'search_result.html', context)

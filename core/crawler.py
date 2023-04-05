@@ -1,10 +1,11 @@
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 import re
 import datetime
 from urllib.parse import urljoin
-from core.models import Keywords, Urls, Favicons
+from core.models import Keywords, Urls, Favicons, UrlCategory
 from random import shuffle
+import joblib
 
 def scrap(url):
     try:
@@ -57,20 +58,24 @@ def scrap(url):
 
     iconLink = getFavicon(url, soup)
 
-    return (keywords, page_title, page_description, iconLink, urls_found_on_this_page)
+    # categorize url based on its content
+    urlCategory = joblib.load('core/static/core/website_category_detection_model.joblib').predict([text_from_html(page.text)])[0]
+
+    return (keywords, page_title, page_description, iconLink, urls_found_on_this_page, urlCategory)
 
 
 
-def store(url, keywords, urls_found_on_this_page, title, description, iconLink):
+def store(url, keywords, urls_found_on_this_page, title, description, iconLink, urlCategory):
     # saving current url to db if not already saved, and getting its reference, later mapping it with keywords and updating its last_scrapped value
     url_row, created_url_obj = Urls.objects.get_or_create(address = url)
     #delete keywords feild entry as some keywords may no longer be in page so start afresh
     url_row.keywords_in_it.clear()
-    # update or create title, description and iconLink
+    # update or create title, description, iconLink and category
     url_row.page_title = title[:pageTitleCharLimit]
     url_row.page_description = description[:pageDescriptionCharLimit]
     favicon_row = Favicons.objects.get_or_create(icon_link = iconLink)
     url_row.icon_link = str(favicon_row[0].id)
+    url_row.category = UrlCategory.objects.get_or_create(category_name = urlCategory)[0].id
     # save keywords to database model Keywords and relate it with current url by many-to-many relationship
     for keyword in keywords:
         keyword = keyword.strip()
@@ -119,15 +124,30 @@ def get_url_regex():
             r'(?::\d+)?' # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
+def tag_visible(element):
+    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+        return False
+    if isinstance(element, Comment):
+        return False
+    return True
+
+
+def text_from_html(body):
+    soup = BeautifulSoup(body, 'html.parser')
+    texts = soup.findAll(text=True)
+    visible_texts = filter(tag_visible, texts)  
+    return u" ".join(t.strip() for t in visible_texts)
+
+
 
 if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 50
+    maxUrlsToScrapInSession = 1
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
-    manualAddition = False
+    manualAddition = True
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
@@ -135,8 +155,8 @@ if __name__ == "django.core.management.commands.shell":
 
     if manualAddition:
         url_to_scrap = "https://www.cricbuzz.com/"
-        keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page = scrap(url_to_scrap)
-        store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink)
+        keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page, category = scrap(url_to_scrap)
+        store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink, category)
         urlsScrappedInSession += 1
         print("[ + ] Crawled ({0}/{1}) URL: {2}".format(urlsScrappedInSession,maxUrlsToScrapInSession,url_to_scrap))
 
@@ -151,11 +171,11 @@ if __name__ == "django.core.management.commands.shell":
             if urlsScrappedInSession >= maxUrlsToScrapInSession:
                 break
             url_to_scrap = url_object.address
-            keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page = scrap(url_to_scrap)
+            keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page, category = scrap(url_to_scrap)
             if (keywords_found_on_this_page, urls_found_on_this_page) == (None, None):
                 print("[ - ] Skipping URL: {0}".format(url_to_scrap))
                 continue
-            store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink)
+            store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink, category)
             urlsScrappedInSession += 1
             print("[ + ] Crawled ({0}/{1}) URL: {2}".format(urlsScrappedInSession,maxUrlsToScrapInSession,url_to_scrap))
 

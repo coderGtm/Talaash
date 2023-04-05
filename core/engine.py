@@ -1,5 +1,6 @@
-from core.models import Urls, Favicons
+from core.models import Urls, Favicons, UrlCategory
 import datetime
+import joblib
 
 
 def getResults(query):
@@ -24,7 +25,8 @@ def getResults(query):
         url = mu.address
         if url not in results:
             icon_url = Favicons.objects.get(id=int(mu.icon_link)).icon_link
-            results.append({'url': url, 'title': mu.page_title, 'description': mu.page_description, 'icon_url': icon_url})
+            url_category = UrlCategory.objects.get(id=int(mu.category)).category_name
+            results.append({'url': url, 'title': mu.page_title, 'description': mu.page_description, 'icon_url': icon_url, 'category': url_category})
 
     return results
 
@@ -71,3 +73,17 @@ def returnRankedResults(res_title, res_keyword, res_description, res_url):
     results.sort(key=lambda x: x[1]+x[0].num_of_refs*2, reverse=True)
     
     return results
+
+def categorizeDBurls():
+    urls = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min)
+    print("categorizing "+str(len(urls))+" urls...")
+    for url in urls:
+        print("categorizing "+url.address+"...")
+        category = joblib.load('core/static/core/website_category_detection_model.joblib').predict([url.page_title])[0]
+        url.category = UrlCategory.objects.get_or_create(category_name=category)[0].id
+        url.save()
+        
+    print("categorization complete")
+
+#if __name__ == "django.core.management.commands.shell":
+    #categorizeDBurls()
