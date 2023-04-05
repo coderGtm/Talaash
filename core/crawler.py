@@ -43,7 +43,7 @@ def scrap(url):
         if headings:
             page_description = headings[0].text.strip()
         else:
-            page_description = "No description found"
+            page_description = text_from_html(page.text)[:pageDescriptionCharLimit]
 
     # add title to keywords and save page title
     page_title = None
@@ -52,7 +52,7 @@ def scrap(url):
         keywords.append(str(title.text).strip())
 
     if len(titles) == 0:
-        page_title = url
+        page_title = text_from_html(page.text)[:pageTitleCharLimit]
     else:
         page_title = titles[0].text.strip()
 
