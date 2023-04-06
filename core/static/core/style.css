@@ -170,12 +170,15 @@ footer a:hover {
 }
 
 @media only screen and (max-width: 768px) {
+	nav {
+		margin-right: 12px;
+	}
 	.section-1 {
-		margin-top: 50px;
+		margin-top: 25px;
 		width: 100%;
 	}
 	.section-1 .logo {
-		max-width: 300px;
+		max-width: 90vw;
 	}
 	.s-box {
 		width: 80%;
@@ -189,12 +192,15 @@ footer a:hover {
 }
 
 @media only screen and (min-width: 769px) and (max-width: 1024px) {
+	nav {
+		margin-right: 12px;
+	}
 	.section-1 {
 		margin-top: 100px;
 		width: 100%;
 	}
 	.section-1 .logo {
-		max-width: 300px;
+		max-width: 70vw;
 	}
 	.s-box {
 		width: 80%;
