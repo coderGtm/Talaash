@@ -9,6 +9,11 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'core/style.css' %}">
 </head>
 <body>
+	<nav>
+		<a href="https://github.com/coderGtm/Talaash">
+			<img src="{% static 'core/github-mark.svg' %}" alt="">
+		</a>
+	</nav>
       <section class="section-1">
       	<img src="{% static 'core/Talaash_1.png' %}" class="logo">
       	<br><br>
@@ -25,7 +30,7 @@
 		</div>
       </section>
 	  <footer>
-		<h4>Talaash has crawled {{ totalScrappedUrls }} URLs until now. Last URL was crawled on {{ lastScrappedDate }} UTC</h4>
+		<h4>Talaash has crawled <em><strong>{{ totalScrappedUrls }}</strong></em> URLs until now. Last URL was crawled on <strong>{{ lastScrappedDate }} UTC</strong></h4>
 	  </footer>
 </body>
 </html>
