@@ -50,4 +50,4 @@ def search(request):
     return render(request, 'search_result.html', context)
 
 maxResultsOnPage = 10
-apiMode = True
+apiMode = False
