@@ -3,6 +3,10 @@ from .forms import SearchForm
 from . import engine
 from core.models import Urls
 import datetime
+from django.core import serializers
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 # Create your views here.
 
@@ -20,6 +24,9 @@ def home(request):
     context['form'] = form
     context['totalScrappedUrls'] = totalScrappedUrls
     context['lastScrappedDate'] = lastScrappedDate
+
+    if apiMode:
+        return JsonResponse({'totalScrappedUrls': totalScrappedUrls, 'lastScrappedDate': lastScrappedDate})
 
     return render(request, 'home.html', context)
 
@@ -40,6 +47,10 @@ def search(request):
     context['results'] = results[int(start):int(start)+maxResultsOnPage]
     context['totalResults'] = len(results)
 
+    if apiMode:
+        return JsonResponse({'results': context['results'], 'totalResults': context['totalResults']})
+
     return render(request, 'search_result.html', context)
 
 maxResultsOnPage = 10
+apiMode = True
