@@ -48,7 +48,6 @@ def getResultsWithMatch(param, query):
     words = query.split()
     if len(words) > 1:
         for word in words:
-            print('searching word '+word)
             res = res | getResultsWithMatch(param, word)
                 
     #print(len(res))
