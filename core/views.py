@@ -3,10 +3,7 @@ from .forms import SearchForm
 from . import engine
 from core.models import Urls
 import datetime
-from django.core import serializers
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 # Create your views here.
 
