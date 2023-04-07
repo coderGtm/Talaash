@@ -11,7 +11,7 @@ def scrap(url):
     try:
         page = requests.get(url, timeout = 10)
     except:
-        return (None, None, None, None, None)
+        return (None, None, None, None, None, None)
     soup = BeautifulSoup(page.text, 'html.parser')
     
     # using Set data structure to store all urls on this page and avoid duplication
@@ -144,10 +144,10 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 1
+    maxUrlsToScrapInSession = 500
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
-    manualAddition = True
+    manualAddition = False
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
