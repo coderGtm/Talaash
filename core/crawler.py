@@ -7,7 +7,10 @@ from core.models import Keywords, Urls, Favicons, UrlCategory
 from random import shuffle
 import joblib
 
-def scrap(url):
+def scrap(url: str):
+    if domainRestricted:
+        if url.find(rootDomain) != 0:
+            return (None, None, None, None, None, None)
     try:
         page = requests.get(url, timeout = 10)
     except:
@@ -87,10 +90,17 @@ def store(url, keywords, urls_found_on_this_page, title, description, iconLink, 
     # i.e increment iff current url is not yet scrapped and link is already present in db (as default is 1)
     # not yet scrapped can be determined by last_scrapped being datetime.datetime.min
     for link in urls_found_on_this_page:
-        link_row, created_link_obj = Urls.objects.get_or_create(address = link)
-        if (not created_link_obj) and url_row.last_scrapped == datetime.datetime.min:
-            link_row.num_of_refs += 1
-            link_row.save()
+        if domainRestricted:
+            if link.find(rootDomain) == 0:
+                link_row, created_link_obj = Urls.objects.get_or_create(address = link)
+                if (not created_link_obj) and url_row.last_scrapped == datetime.datetime.min:
+                    link_row.num_of_refs += 1
+                    link_row.save()
+        else:
+            link_row, created_link_obj = Urls.objects.get_or_create(address = link)
+            if (not created_link_obj) and url_row.last_scrapped == datetime.datetime.min:
+                link_row.num_of_refs += 1
+                link_row.save()
     
     url_row.last_scrapped = datetime.datetime.utcnow()
     url_row.save()
@@ -144,21 +154,26 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 500
+    maxUrlsToScrapInSession = 50
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
     manualAddition = False
+    domainRestricted = True
+    rootDomain = "https://charusat.ac.in/"
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
     print("-------------------------------------------\n")
 
     if manualAddition:
-        url_to_scrap = "https://www.cricbuzz.com/"
+        url_to_scrap = "https://charusat.ac.in/"
         keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page, category = scrap(url_to_scrap)
-        store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink, category)
-        urlsScrappedInSession += 1
-        print("[ + ] Crawled ({0}/{1}) URL: {2}".format(urlsScrappedInSession,maxUrlsToScrapInSession,url_to_scrap))
+        if (keywords_found_on_this_page, urls_found_on_this_page) == (None, None):
+            print("[ - ] The manual addition URL '{0}' cannot be scrapped.".format(url_to_scrap))
+        else:
+            store(url_to_scrap, keywords_found_on_this_page, urls_found_on_this_page, page_title, page_description, iconLink, category)
+            urlsScrappedInSession += 1
+            print("[ + ] Crawled ({0}/{1}) URL: {2}".format(urlsScrappedInSession,maxUrlsToScrapInSession,url_to_scrap))
 
     while urlsScrappedInSession < maxUrlsToScrapInSession:
         to_scrap_urls = list(Urls.objects.filter(last_scrapped__lt = (datetime.datetime.utcnow() - datetime.timedelta(days = scrapIntervalInDays))))
