@@ -14,7 +14,9 @@ def scrap(url: str):
         page = requests.get(url, timeout = 10)
     except:
         return (None, None, None, None, None, None)
-    
+    if page.status_code != 200:
+        print("Error: ", page.status_code)
+        return (None, None, None, None, None, None)
     docParser = ''
     if url[-4:] == '.pdf' or url[-4:] == '.doc' or url[-5:] == '.docx' or url[-4:] == '.ppt' or url[-5:] == '.pptx' or url[-4:] == '.xls' or url[-5:] == '.xlsx':
         docParser = 'lxml'
@@ -192,12 +194,12 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 100
+    maxUrlsToScrapInSession = 1
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
-    manualAddition = False
+    manualAddition = True
     domainRestricted = True
-    parseSitemap = False
+    parseSitemap = True
     rootDomain = "https://charusat.ac.in/"
     sitemapUrl = "https://charusat.ac.in/sitemap.xml"
 
@@ -220,7 +222,7 @@ if __name__ == "django.core.management.commands.shell":
         print("[ + ] Added {0} urls to database from sitemap.".format(urlsAddedFromSitemap))
 
     if manualAddition:
-        url_to_scrap = "https://charusat.ac.in/"
+        url_to_scrap = "https://charusat.ac.in/arip/feedback_report.html"
         keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page, category = scrap(url_to_scrap)
         if (keywords_found_on_this_page, urls_found_on_this_page) == (None, None):
             print("[ - ] The manual addition URL '{0}' cannot be scrapped.".format(url_to_scrap))
