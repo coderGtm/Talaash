@@ -62,7 +62,7 @@ def scrap(url: str):
     iconLink = getFavicon(url, soup)
 
     # categorize url based on its content
-    urlCategory = joblib.load('core/static/core/website_category_detection_model.joblib').predict([text_from_html(page.text)])[0]
+    urlCategory = joblib.load('core/static/core/website_category_detection_model.joblib').predict([text_from_html(page.text[:2500])])[0]
 
     return (keywords, page_title, page_description, iconLink, urls_found_on_this_page, urlCategory)
 
