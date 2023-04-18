@@ -162,7 +162,7 @@ def getUrlsFromSitemap(sitemapUrl):
     return urls
 
 def isUrlAllowed(url):
-    allowed_domains = [rootDomain]
+    allowed_domains = [rootDomain, "https://isc.charusat.ac.in", "https://charusat.edu.in:912/"]
     url = url.strip().lower()
     if url[-4:] == '.pdf' or url[-4:] == '.doc' or url[-5:] == '.docx' or url[-4:] == '.ppt' or url[-5:] == '.pptx' or url[-4:] == '.xls' or url[-5:] == '.xlsx':
         return False # return None if url is a document as currently we are not supporting documents
@@ -184,8 +184,11 @@ def isUrlAllowed(url):
         return False
     
     if domainRestricted:
-        if url.find(rootDomain) != 0:
-            return False
+        flag = False
+        for domain in allowed_domains:
+            if url.find(domain) == 0:
+                flag = True
+        return flag
         
     return True
 
@@ -194,7 +197,7 @@ if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 1
+    maxUrlsToScrapInSession = 10
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
     manualAddition = True
@@ -222,7 +225,7 @@ if __name__ == "django.core.management.commands.shell":
         print("[ + ] Added {0} urls to database from sitemap.".format(urlsAddedFromSitemap))
 
     if manualAddition:
-        url_to_scrap = "https://charusat.ac.in/arip/feedback_report.html"
+        url_to_scrap = "https://charusat.ac.in/"
         keywords_found_on_this_page, page_title, page_description, iconLink, urls_found_on_this_page, category = scrap(url_to_scrap)
         if (keywords_found_on_this_page, urls_found_on_this_page) == (None, None):
             print("[ - ] The manual addition URL '{0}' cannot be scrapped.".format(url_to_scrap))
