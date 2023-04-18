@@ -21,3 +21,7 @@ class Urls(models.Model):
     keywords_in_it = models.ManyToManyField(Keywords)
     category = models.IntegerField(default=0)
     last_scrapped = models.DateTimeField(default=datetime.datetime.min)
+
+class RootDomain(models.Model):
+    root_url = models.CharField(max_length=100)
+    root_title = models.CharField(max_length=100)

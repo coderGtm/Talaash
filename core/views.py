@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import SearchForm
 from . import engine
-from core.models import Urls
+from core.models import Urls, RootDomain
 import datetime
 from django.http import JsonResponse
 
@@ -18,12 +18,16 @@ def home(request):
         form = SearchForm()
         totalScrappedUrls = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min).count()
         lastScrappedDate = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min).order_by('-last_scrapped')[0].last_scrapped
+        root_url = RootDomain.objects.all()[0].root_url
+        root_title = RootDomain.objects.all()[0].root_title
     context['form'] = form
     context['totalScrappedUrls'] = totalScrappedUrls
     context['lastScrappedDate'] = lastScrappedDate
+    context['root_url'] = root_url
+    context['root_title'] = root_title
 
     if apiMode:
-        return JsonResponse({'totalScrappedUrls': totalScrappedUrls, 'lastScrappedDate': lastScrappedDate})
+        return JsonResponse({'totalScrappedUrls': totalScrappedUrls, 'lastScrappedDate': lastScrappedDate, 'root_url': root_url, 'root_title': root_title})
 
     return render(request, 'home.html', context)
 
