@@ -8,14 +8,22 @@ from random import shuffle
 import joblib
 
 def scrap(url: str):
-    if domainRestricted:
-        if url.find(rootDomain) != 0:
-            return (None, None, None, None, None, None)
+    if isUrlAllowed(url) == False:
+        return (None, None, None, None, None, None)
     try:
         page = requests.get(url, timeout = 10)
     except:
         return (None, None, None, None, None, None)
-    soup = BeautifulSoup(page.text, 'html.parser')
+    
+    docParser = ''
+    if url[-4:] == '.pdf' or url[-4:] == '.doc' or url[-5:] == '.docx' or url[-4:] == '.ppt' or url[-5:] == '.pptx' or url[-4:] == '.xls' or url[-5:] == '.xlsx':
+        docParser = 'lxml'
+        content = page.content
+    else:
+        docParser = 'html.parser'
+        content = page.text
+
+    soup = BeautifulSoup(content, docParser)
     
     # using Set data structure to store all urls on this page and avoid duplication
     urls_found_on_this_page = set()
@@ -46,7 +54,7 @@ def scrap(url: str):
         if headings:
             page_description = headings[0].text.strip()
         else:
-            page_description = text_from_html(page.text)[:pageDescriptionCharLimit]
+            page_description = text_from_html(content)[:pageDescriptionCharLimit]
 
     # add title to keywords and save page title
     page_title = None
@@ -55,14 +63,14 @@ def scrap(url: str):
         keywords.append(str(title.text).strip())
 
     if len(titles) == 0:
-        page_title = text_from_html(page.text)[:pageTitleCharLimit]
+        page_title = text_from_html(content)[:pageTitleCharLimit]
     else:
         page_title = titles[0].text.strip()
 
     iconLink = getFavicon(url, soup)
 
     # categorize url based on its content
-    urlCategory = joblib.load('core/static/core/website_category_detection_model.joblib').predict([text_from_html(page.text[:2500])])[0]
+    urlCategory = joblib.load('core/static/core/website_category_detection_model.joblib').predict([text_from_html(content[:2500])])[0]
 
     return (keywords, page_title, page_description, iconLink, urls_found_on_this_page, urlCategory)
 
@@ -90,13 +98,7 @@ def store(url, keywords, urls_found_on_this_page, title, description, iconLink, 
     # i.e increment iff current url is not yet scrapped and link is already present in db (as default is 1)
     # not yet scrapped can be determined by last_scrapped being datetime.datetime.min
     for link in urls_found_on_this_page:
-        if domainRestricted:
-            if link.find(rootDomain) == 0:
-                link_row, created_link_obj = Urls.objects.get_or_create(address = link)
-                if (not created_link_obj) and url_row.last_scrapped == datetime.datetime.min:
-                    link_row.num_of_refs += 1
-                    link_row.save()
-        else:
+        if isUrlAllowed(link):
             link_row, created_link_obj = Urls.objects.get_or_create(address = link)
             if (not created_link_obj) and url_row.last_scrapped == datetime.datetime.min:
                 link_row.num_of_refs += 1
@@ -148,22 +150,74 @@ def text_from_html(body):
     visible_texts = filter(tag_visible, texts)  
     return u" ".join(t.strip() for t in visible_texts)
 
+def getUrlsFromSitemap(sitemapUrl):
+    urls = []
+    sitemap = requests.get(sitemapUrl)
+    if sitemap.status_code == 200:
+        soup = BeautifulSoup(sitemap.content, 'xml')
+        for url in soup.find_all('url'):
+            urls.append(url.find('loc').text)
+    return urls
+
+def isUrlAllowed(url):
+    allowed_domains = [rootDomain]
+    url = url.strip().lower()
+    if url[-4:] == '.pdf' or url[-4:] == '.doc' or url[-5:] == '.docx' or url[-4:] == '.ppt' or url[-5:] == '.pptx' or url[-4:] == '.xls' or url[-5:] == '.xlsx':
+        return False # return None if url is a document as currently we are not supporting documents
+    if url[-4:] == '.jpg' or url[-4:] == '.png' or url[-4:] == '.gif' or url[-4:] == '.svg' or url[-4:] == '.bmp' or url[-4:] == '.ico':
+        return False
+    if url[-4:] == '.mp3' or url[-4:] == '.mp4' or url[-4:] == '.wav' or url[-4:] == '.avi' or url[-4:] == '.flv' or url[-4:] == '.wmv':
+        return False
+    if url[-4:] == '.zip' or url[-4:] == '.rar' or url[-4:] == '.7z' or url[-4:] == '.tar' or url[-4:] == '.gz' or url[-4:] == '.bz2':
+        return False
+    if url[-4:] == '.exe' or url[-4:] == '.msi' or url[-4:] == '.apk' or url[-4:] == '.dmg' or url[-4:] == '.deb' or url[-4:] == '.rpm':
+        return False
+    if url[-4:] == '.ttf' or url[-4:] == '.otf' or url[-4:] == '.woff' or url[-4:] == '.woff2' or url[-4:] == '.eot':
+        return False
+    if url[-4:] == '.css' or url[-3:] == '.js':
+        return False
+    if url[-4:] == '.xml' or url[-4:] == '.rss':
+        return False
+    if url[-4:] == '.csv' or url[-4:] == '.txt' or url[-4:] == '.log':
+        return False
+    
+    if domainRestricted:
+        if url.find(rootDomain) != 0:
+            return False
+        
+    return True
 
 
 if __name__ == "django.core.management.commands.shell":
     url_regex = get_url_regex()
     pageTitleCharLimit = 60
     pageDescriptionCharLimit = 140
-    maxUrlsToScrapInSession = 50
+    maxUrlsToScrapInSession = 100
     urlsScrappedInSession = 0
     scrapIntervalInDays = 3
     manualAddition = False
     domainRestricted = True
+    parseSitemap = False
     rootDomain = "https://charusat.ac.in/"
+    sitemapUrl = "https://charusat.ac.in/sitemap.xml"
 
     print("[ + ] Initializing crawler!")
     print("[ + ] Scraping {0} urls in this session which are not scrapped in the last {1} days.".format(maxUrlsToScrapInSession, scrapIntervalInDays))
     print("-------------------------------------------\n")
+
+    if domainRestricted and parseSitemap:
+        print("[ + ] Parsing sitemap for urls in domain '{0}'".format(rootDomain))
+        urlsInSitemap = getUrlsFromSitemap(sitemapUrl)
+        print("[ + ] Found {0} urls in sitemap.".format(len(urlsInSitemap)))
+        urlsAddedFromSitemap = 0
+        for url in urlsInSitemap:
+            if isUrlAllowed(url):
+                link_row, created_link_obj = Urls.objects.get_or_create(address = url)
+                if created_link_obj:
+                    link_row.num_of_refs = 0
+                    link_row.save()
+                    urlsAddedFromSitemap += 1
+        print("[ + ] Added {0} urls to database from sitemap.".format(urlsAddedFromSitemap))
 
     if manualAddition:
         url_to_scrap = "https://charusat.ac.in/"
