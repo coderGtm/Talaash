@@ -26,10 +26,20 @@ def home(request):
     context['root_url'] = root_url
     context['root_title'] = root_title
 
-    if apiMode:
-        return JsonResponse({'totalScrappedUrls': totalScrappedUrls, 'lastScrappedDate': lastScrappedDate, 'root_url': root_url, 'root_title': root_title})
-
     return render(request, 'home.html', context)
+
+def api_home(request):
+    context = {}
+    totalScrappedUrls = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min).count()
+    lastScrappedDate = Urls.objects.all().exclude(last_scrapped = datetime.datetime.min).order_by('-last_scrapped')[0].last_scrapped
+    root_url = RootDomain.objects.all()[0].root_url
+    root_title = RootDomain.objects.all()[0].root_title
+    context['totalScrappedUrls'] = totalScrappedUrls
+    context['lastScrappedDate'] = lastScrappedDate
+    context['root_url'] = root_url
+    context['root_title'] = root_title
+
+    return JsonResponse({'totalScrappedUrls': totalScrappedUrls, 'lastScrappedDate': lastScrappedDate, 'root_url': root_url, 'root_title': root_title})
 
 def search(request):
     if request.method == 'POST':
@@ -41,6 +51,8 @@ def search(request):
         form = SearchForm(initial={'query': request.GET.get('q','')})
     context = {}
     query = request.GET.get('q','')
+    if query == '':
+        return redirect('/')
     start = request.GET.get('start', 0)
     context['form'] = form
     context['query'] = query
@@ -48,10 +60,20 @@ def search(request):
     context['results'] = results[int(start):int(start)+maxResultsOnPage]
     context['totalResults'] = len(results)
 
-    if apiMode:
-        return JsonResponse({'results': context['results'], 'totalResults': context['totalResults']})
-
     return render(request, 'search_result.html', context)
 
+def api_search(request):
+    context = {}
+    query = request.GET.get('q','')
+    if query == '':
+        return JsonResponse({'results': [], 'totalResults': 0})
+    start = request.GET.get('start', 0)
+    context['query'] = query
+    results = engine.getResults(query)
+    context['results'] = results[int(start):int(start)+maxResultsOnPage]
+    context['totalResults'] = len(results)
+
+    return JsonResponse({'results': context['results'], 'totalResults': context['totalResults']})
+
+
 maxResultsOnPage = 10
-apiMode = False

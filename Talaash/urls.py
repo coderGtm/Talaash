@@ -20,5 +20,7 @@ from core import views as core_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', core_views.home, name='home'),
-    path('search', core_views.search, name='search')
+    path('search', core_views.search, name='search'),
+    path('api/', core_views.api_home, name='api'),
+    path('api/search', core_views.api_search, name='api_search'),
 ]
